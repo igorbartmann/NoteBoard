@@ -6,6 +6,9 @@ CREATE TABLE [NoteBoard].[Note]
   [Color]     INT               NOT NULL,
   [CreatedAt] DATETIMEOFFSET(3) NOT NULL,
   [CreatedBy] INT               NOT NULL,
+  [UpdatedAt] DATETIMEOFFSET(3) NULL,
+  [UpdatedBy] INT               NULL,
   CONSTRAINT [PK_Note] PRIMARY KEY ([Id]),
-  CONSTRAINT [FK_Note_CreatedBy] FOREIGN KEY ([CreatedBy]) REFERENCES [NoteBoard].[User]([Id])
+  CONSTRAINT [FK_Note_CreatedBy] FOREIGN KEY ([CreatedBy]) REFERENCES [NoteBoard].[User]([Id]),
+  CONSTRAINT [FK_Note_UpdatedBy] FOREIGN KEY ([UpdatedBy]) REFERENCES [NoteBoard].[User]([Id])
 );
