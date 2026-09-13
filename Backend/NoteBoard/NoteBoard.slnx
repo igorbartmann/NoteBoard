@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="../NoteBoard.Api/NoteBoard.Api.csproj" />
+  <Project Path="../NoteBoard.Application/NoteBoard.Application.csproj" />
+  <Project Path="../NoteBoard.Data/NoteBoard.Data.csproj" />
+  <Project Path="../NoteBoard.Domain/NoteBoard.Domain.csproj" />
+  <Project Path="../NoteBoard.Tests/NoteBoard.Tests.csproj" />
+</Solution>
