@@ -1,0 +1,11 @@
+CREATE TABLE [NoteBoard].[Note]
+(
+  [Id]        INT               NOT NULL  IDENTITY(1,1),
+  [Title]     NVARCHAR(50)      NOT NULL,
+  [Content]   NVARCHAR(350)     NOT NULL,
+  [Color]     INT               NOT NULL,
+  [CreatedAt] DATETIMEOFFSET(3) NOT NULL,
+  [CreatedBy] INT               NOT NULL,
+  CONSTRAINT [PK_Note] PRIMARY KEY ([Id]),
+  CONSTRAINT [FK_Note_CreatedBy] FOREIGN KEY ([CreatedBy]) REFERENCES [NoteBoard].[User]([Id])
+);
