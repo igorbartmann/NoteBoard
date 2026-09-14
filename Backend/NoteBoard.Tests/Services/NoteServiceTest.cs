@@ -1,5 +1,6 @@
 using Moq;
 using NoteBoard.Application.Common.Result;
+using NoteBoard.Application.Interfaces.Queries;
 using NoteBoard.Application.LoggedUserManager;
 using NoteBoard.Application.Mappers;
 using NoteBoard.Application.Models.Note;
@@ -16,6 +17,7 @@ namespace NoteBoard.Tests.Services
     public class NoteServiceTest
     {
         private readonly Mock<ILoggedUserManager> _loggedUserManagerMock;
+        private readonly Mock<INoteQuery> _noteQueryMock;
         private readonly Mock<INoteRepository> _noteRepositoryMock;
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly NoteService _noteService;
@@ -23,11 +25,13 @@ namespace NoteBoard.Tests.Services
         public NoteServiceTest()
         {
             _loggedUserManagerMock = new Mock<ILoggedUserManager>();
+            _noteQueryMock         = new Mock<INoteQuery>();
             _noteRepositoryMock    = new Mock<INoteRepository>();
             _unitOfWorkMock        = new Mock<IUnitOfWork>();
-
+            
             _noteService = new NoteService(
                 loggedUserManager: _loggedUserManagerMock.Object,
+                query:             _noteQueryMock.Object,
                 normalizer:        new NoteNormalizer(),
                 validator:         new NoteValidator(),
                 mapper:            new NoteMapper(),
@@ -45,6 +49,10 @@ namespace NoteBoard.Tests.Services
         public async Task Create()
         {
             DefineUserAsAuthenticated(userId: 10);
+
+            _noteQueryMock
+                .Setup(q => q.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new NoteViewModel(1, "Buy Milk", "Market", false, NoteColor.Yellow, DateTimeOffset.UtcNow, 10, null));
 
             var model = new NoteCreateInputModel
             {
@@ -115,6 +123,38 @@ namespace NoteBoard.Tests.Services
 
             Assert.True(result.IsFailure);
             Assert.Equal(ResultStatus.ValidatorError, result.Status);
+        }
+
+        [Fact]
+        public async Task Edit()
+        {
+            DefineUserAsAuthenticated(userId: 1);
+
+            _noteRepositoryMock
+                .Setup(r => r.ReadByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Note(
+                    1,
+                    "Title", 
+                    "Content", 
+                    false, NoteColor.Yellow,
+                    DateTimeOffset.UtcNow, 
+                    createdBy: 1,
+                    new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero)
+                ));
+
+            _noteQueryMock
+                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new NoteViewModel(1, "New Title", "new content", false, NoteColor.Green, DateTimeOffset.UtcNow, 1, null));
+
+            var model = new NoteUpdateInputModel(1, "new title", "new content", NoteColor.Green, new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero));
+
+            var result = await _noteService.Edit(model, CancellationToken.None);
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal("New Title", result.Data!.Title);
+            Assert.Equal(NoteColor.Green, result.Data.Color);
+            _noteRepositoryMock.Verify(r => r.Update(It.IsAny<Note>()), Times.Once);
+            _unitOfWorkMock.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -200,34 +240,6 @@ namespace NoteBoard.Tests.Services
         }
 
         [Fact]
-        public async Task Edit()
-        {
-            DefineUserAsAuthenticated(userId: 1);
-
-            _noteRepositoryMock
-                .Setup(r => r.ReadByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Note(
-                    1,
-                    "Title", 
-                    "Content", 
-                    false, NoteColor.Yellow,
-                    DateTimeOffset.UtcNow, 
-                    createdBy: 1,
-                    new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero)
-                ));
-
-            var model = new NoteUpdateInputModel(1, "new title", "new content", NoteColor.Green, new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero));
-
-            var result = await _noteService.Edit(model, CancellationToken.None);
-
-            Assert.True(result.IsSuccess);
-            Assert.Equal("New Title", result.Data!.Title);
-            Assert.Equal(NoteColor.Green, result.Data.Color);
-            _noteRepositoryMock.Verify(r => r.Update(It.IsAny<Note>()), Times.Once);
-            _unitOfWorkMock.Verify(u => u.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Fact]
         public async Task SetCompleted()
         {
             DefineUserAsAuthenticated(userId: 1);
@@ -244,6 +256,10 @@ namespace NoteBoard.Tests.Services
                     createdBy: 1, 
                     new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
                 ));
+
+            _noteQueryMock
+                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new NoteViewModel(1, "Buy Milk", "Market", true, NoteColor.Yellow, DateTimeOffset.UtcNow, 1, null));
 
             var model = new NoteSetCompleteInputModel(1, new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 

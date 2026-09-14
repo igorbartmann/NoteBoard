@@ -62,11 +62,6 @@ namespace NoteBoard.Application.Validators
 
             ValidateName(nameof(model.Name), model.Name, errors);
 
-            if (model.UpdatedAt is null)
-            {
-                errors.Add(new ValidationError(nameof(model.UpdatedAt), ValidationMessages.Required(nameof(model.UpdatedAt))));
-            }
-
             return new ValidationResult(errors);
         }
 

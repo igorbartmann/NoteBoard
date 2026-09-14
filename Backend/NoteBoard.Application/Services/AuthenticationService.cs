@@ -40,7 +40,7 @@ namespace NoteBoard.Application.Services
                 return Result<LoginViewModel>.AuthenticationError(new ResultMessage("Invalid credentials"));
             }
 
-            if (!_passwordHasher.CheckPassword(userCredentials.Password, model.Password))
+            if (!_passwordHasher.CheckPassword(userCredentials.PasswordHash, model.Password))
             {
                 return Result<LoginViewModel>.AuthenticationError(new ResultMessage("Invalid credentials"));
             }

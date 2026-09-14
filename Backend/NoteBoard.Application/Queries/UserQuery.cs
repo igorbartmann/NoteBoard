@@ -47,7 +47,7 @@ namespace NoteBoard.Application.Queries
                     u.Id,
                     u.Name,
                     u.Email,
-                    u.Password
+                    u.PasswordHash
                 )
             );
 

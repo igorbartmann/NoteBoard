@@ -3,6 +3,7 @@ using NoteBoard.Application.Common.Messages;
 using NoteBoard.Application.Common.Result;
 using NoteBoard.Application.Interfaces.Mappers;
 using NoteBoard.Application.Interfaces.Normalizers;
+using NoteBoard.Application.Interfaces.Queries;
 using NoteBoard.Application.Interfaces.Services;
 using NoteBoard.Application.Interfaces.Validators;
 using NoteBoard.Application.LoggedUserManager;
@@ -16,10 +17,12 @@ namespace NoteBoard.Application.Services
     public sealed class NoteService : BaseService<Note, NoteCreateInputModel, NoteUpdateInputModel, NoteViewModel>, INoteService
     {
         private readonly ILoggedUserManager _loggedUserManager;
+        private readonly INoteQuery _query;
 
-        public NoteService(ILoggedUserManager loggedUserManager, INoteNormalizer normalizer, INoteValidator validator, INoteMapper mapper, INoteRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
+        public NoteService(ILoggedUserManager loggedUserManager, INoteQuery query, INoteNormalizer normalizer, INoteValidator validator, INoteMapper mapper, INoteRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
         {
             _loggedUserManager = loggedUserManager;
+            _query = query;
         }
 
         public override async Task<Result<NoteViewModel>> Create(NoteCreateInputModel model, CancellationToken cancellationToken)
@@ -43,7 +46,7 @@ namespace NoteBoard.Application.Services
             _repository .Add(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = _mapper.ToViewModel(entity);
+            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
 
             return Result<NoteViewModel>.Success(viewModel);
         }
@@ -69,7 +72,7 @@ namespace NoteBoard.Application.Services
                 return Result<NoteViewModel>.Forbidden(new ResultMessage(ApplicationMessages.Forbidden));
             }
 
-            if (entity.UpdatedAt != model.UpdatedAt)
+            if (entity.UpdatedAt.HasValue && entity.UpdatedAt != model.UpdatedAt)
             {
                 return Result<NoteViewModel>.ConcurrencyError(new ResultMessage(ApplicationMessages.ConcurrencyError(nameof(Note))));
             }
@@ -79,7 +82,7 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = _mapper.ToViewModel(entity);
+            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
             
             return Result<NoteViewModel>.Success(viewModel);
         }
@@ -113,7 +116,7 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = _mapper.ToViewModel(entity);
+            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
             
             return Result<NoteViewModel>.Success(viewModel);
         }
@@ -134,7 +137,7 @@ namespace NoteBoard.Application.Services
             _repository.Remove(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
             
-            return Result<NoteViewModel>.Success();
+            return Result<NoteViewModel>.Success(message: new ResultMessage(ApplicationMessages.SuccessfullyDeleted));
         }
     }
 }

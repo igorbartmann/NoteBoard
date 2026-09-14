@@ -18,14 +18,14 @@ namespace NoteBoard.Application.Services
     public sealed class UserService : BaseService<User, UserCreateInputModel, UserUpdateInputModel, UserViewModel>, IUserService
     {
         private readonly ILoggedUserManager _loggedUserManager;
-        private readonly PasswordHasher _passwordHasher;
         private readonly IUserQuery _query;
+        private readonly PasswordHasher _passwordHasher;
 
-        public UserService(ILoggedUserManager loggedUserManager, IUserNormalizer normalizer, IUserValidator validator, IUserMapper mapper, IUserQuery query, IUserRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
+        public UserService(ILoggedUserManager loggedUserManager, IUserQuery query, IUserNormalizer normalizer, IUserValidator validator, IUserMapper mapper, IUserRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
         {
             _loggedUserManager = loggedUserManager;
-            _passwordHasher = new();
             _query = query;
+            _passwordHasher = new();
         }
 
         public override async Task<Result<UserViewModel>> Create(UserCreateInputModel model, CancellationToken cancellationToken)
@@ -44,15 +44,15 @@ namespace NoteBoard.Application.Services
                 return Result<UserViewModel>.ValidationError(new ResultMessage(ValidationMessages.EmailAlreadyInUse));
             }
 
-            var user = _mapper.ToEntity(model);
-            user.Password = _passwordHasher.HashPassword(model.Password!);
+            var entity = _mapper.ToEntity(model);
+            entity.PasswordHash = _passwordHasher.HashPassword(model.Password!);
 
-            _repository.Add(user);
+            _repository.Add(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = _mapper.ToViewModel(user);
+            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
             
-            return Result<UserViewModel>.Success(viewModel);
+            return Result<UserViewModel>.Success(data: viewModel);
         }
 
         public override async Task<Result<UserViewModel>> Edit(UserUpdateInputModel model, CancellationToken cancellationToken)
@@ -81,7 +81,7 @@ namespace NoteBoard.Application.Services
                 return Result<UserViewModel>.NotFound(new ResultMessage(ApplicationMessages.NotFound(nameof(User))));
             }
 
-            if (entity.UpdatedAt != model.UpdatedAt)
+            if (entity.UpdatedAt.HasValue && entity.UpdatedAt != model.UpdatedAt)
             {
                 return Result<UserViewModel>.ConcurrencyError(new ResultMessage(ApplicationMessages.ConcurrencyError(nameof(User))));
             }
@@ -91,9 +91,9 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = _mapper.ToViewModel(entity);
+            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
             
-            return Result<UserViewModel>.Success(viewModel);
+            return Result<UserViewModel>.Success(data: viewModel);
         }
 
         public override async Task<Result<UserViewModel>> Delete(int id, CancellationToken cancellationToken)
@@ -117,7 +117,7 @@ namespace NoteBoard.Application.Services
             _repository.Remove(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
             
-            return Result<UserViewModel>.Success();
+            return Result<UserViewModel>.Success(message: new ResultMessage(ApplicationMessages.SuccessfullyDeleted));
         }
     }
 }

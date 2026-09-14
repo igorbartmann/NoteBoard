@@ -11,5 +11,6 @@ namespace NoteBoard.Application.Common.Messages
         public const string AuthConfigurationError = "Authentication properties is not defined in the configuration file.";
         public const string InternalError = "An internal error has occurred. Please try again in a few minutes.";
         public const string UserNotAuthenticated = "You should be authenticated to perform this action.";
+        public const string SuccessfullyDeleted = "The record was successfully deleted.";
     }   
 }

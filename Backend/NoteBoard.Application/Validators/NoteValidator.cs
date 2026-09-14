@@ -38,11 +38,6 @@ namespace NoteBoard.Application.Validators
 
             ValidateColor(nameof(model.Color), model.Color, errors);
 
-            if (model.UpdatedAt is null)
-            {
-                errors.Add(new ValidationError(nameof(model.UpdatedAt), ValidationMessages.Required(nameof(model.UpdatedAt))));
-            }
-
             return new ValidationResult(errors);
         }
 

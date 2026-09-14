@@ -79,7 +79,7 @@ namespace NoteBoard.Tests.Queries
             Assert.NotNull(result);
             Assert.Equal(3, result.Id);
             Assert.Equal("alice@example.com", result.Email);
-            Assert.Equal("hashed-password", result.Password);
+            Assert.Equal("hashed-password", result.PasswordHash);
         }
 
         [Fact]

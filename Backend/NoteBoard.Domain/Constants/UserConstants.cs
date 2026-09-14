@@ -7,6 +7,6 @@ namespace NoteBoard.Domain.Constants
         public const int NameMaxLength = 50;
         public const int EmailMaxLength = 254;
         public const int PasswordMaxLength = 20;
-        public const int HashedPasswordMaxLength = 256;
+        public const int PasswordHashMaxLength = 256;
     }
 }

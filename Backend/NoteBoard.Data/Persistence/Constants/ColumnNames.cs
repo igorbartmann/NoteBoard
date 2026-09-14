@@ -7,7 +7,7 @@ namespace NoteBoard.Data.Persistence.Constants
         public const string Id = "Id";
         public const string Name = "Name";
         public const string Email = "Email";
-        public const string Password = "Password";
+        public const string PasswordHash = "PasswordHash";
         public const string Title = "Title";
         public const string Content = "Content";
         public const string IsCompleted = "IsCompleted";

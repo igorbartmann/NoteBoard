@@ -10,7 +10,7 @@ namespace NoteBoard.Application.Common.Result
         public bool IsSuccess => Status == ResultStatus.Success;
         public bool IsFailure => !IsSuccess;        
 
-        public static Result<T> Success(T? data = default) => new (ResultStatus.Success, data, []);
+        public static Result<T> Success(T? data = default, ResultMessage? message = null) => new (ResultStatus.Success, data, message is null ? [] : [message]);
         public static Result<T> NotFound(ResultMessage message) => new (ResultStatus.NotFoundError, default, [message]);
         public static Result<T> AuthenticationError(ResultMessage message) => new (ResultStatus.AuthenticationError, default, [message]);
         public static Result<T> Forbidden(ResultMessage message) => new (ResultStatus.Forbidden, default, [message]);

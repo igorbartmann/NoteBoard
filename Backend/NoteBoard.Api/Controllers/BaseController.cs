@@ -13,9 +13,9 @@ namespace NoteBoard.Api.Controllers
             return CreatedAtAction(actionName, routeValue, new ApiResponse<T>(data, true, null));
         }
 
-        protected ActionResult NoteBoardOk<T>(T data)
+        protected ActionResult NoteBoardOk<T>(T data, string? message = null)
         {
-            return Ok(new ApiResponse<T>(data, true, null));
+            return Ok(new ApiResponse<T>(data, true, message));
         }
 
         protected ActionResult NoteBoardNotFound<T>(string? message)
@@ -54,13 +54,13 @@ namespace NoteBoard.Api.Controllers
         {
             if (result.IsSuccess)
             {
-                return NoteBoardOk(result.Data);
+                return NoteBoardOk(result.Data, result.Messages.FirstOrDefault()?.Message);
             }
             
             return result.Status switch
             {
                 ResultStatus.NotFoundError => NoteBoardNotFound<T>(result.Messages.FirstOrDefault()?.Message),
-                ResultStatus.ValidatorError => NoteBoardBadRequest<T>(string.Join(", ", result.Messages)),
+                ResultStatus.ValidatorError => NoteBoardBadRequest<T>(string.Join(", ", result.Messages.Select(m => m.Message))),
                 ResultStatus.AuthenticationError => NoteBoardUnauthorized<T>(result.Messages.FirstOrDefault()?.Message),
                 ResultStatus.Forbidden => NoteBoardForbidden<T>(result.Messages.FirstOrDefault()?.Message),
                 ResultStatus.ConcurrencyError => NoteBoardConcurrency<T>(result.Messages.FirstOrDefault()?.Message),

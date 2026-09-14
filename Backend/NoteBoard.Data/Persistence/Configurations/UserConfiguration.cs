@@ -30,9 +30,9 @@ namespace NoteBoard.Data.Persistence.Configurations
                 .HasMaxLength(UserConstants.EmailMaxLength)
                 .IsRequired();
 
-            builder.Property(u => u.Password)
-                .HasColumnName(ColumnNames.Password)
-                .HasMaxLength(UserConstants.HashedPasswordMaxLength)
+            builder.Property(u => u.PasswordHash)
+                .HasColumnName(ColumnNames.PasswordHash)
+                .HasMaxLength(UserConstants.PasswordHashMaxLength)
                 .IsRequired();
 
             builder.Property(u => u.CreatedAt)

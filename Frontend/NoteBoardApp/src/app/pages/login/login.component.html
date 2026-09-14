@@ -1,0 +1,49 @@
+<section class="auth-shell">
+  <div class="auth-card">
+    <header class="auth-header">
+      <h1>Note<span class="brand">Board</span></h1>
+      <p class="subtitle">Sign in to manage your notes</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="user@example.com"
+          autocomplete="email"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <small class="field-error">A valid email is required.</small>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Password</span>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <small class="field-error">Password is required.</small>
+        }
+      </label>
+
+      @if (errorMessage) {
+        <p class="form-error">{{ errorMessage }}</p>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        {{ loading ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+
+    <footer class="auth-footer">
+      Don't have an account?
+      <a routerLink="/register">Create one</a>
+    </footer>
+  </div>
+</section>

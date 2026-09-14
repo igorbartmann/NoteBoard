@@ -30,10 +30,10 @@ namespace NoteBoard.Tests.Services
 
             _userService = new UserService(
                 loggedUserManager: _loggedUserManagerMock.Object,
+                query:             _userQueryMock.Object,
                 normalizer:        new UserNormalizer(),
                 validator:         new UserValidator(),
                 mapper:            new UserMapper(),
-                query:             _userQueryMock.Object,
                 repository:        _userRepositoryMock.Object,
                 unitOfWork:        _unitOfWorkMock.Object);
         }
@@ -44,6 +44,10 @@ namespace NoteBoard.Tests.Services
             _userQueryMock
                 .Setup(q => q.ExistsByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
+
+            _userQueryMock
+                .Setup(q => q.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new UserViewModel(1, "Alice", "alice@example.com", DateTimeOffset.UtcNow, null));
 
             var model = new UserCreateInputModel
             {
@@ -120,9 +124,14 @@ namespace NoteBoard.Tests.Services
         {
             _loggedUserManagerMock.Setup(l => l.IsLoggedUserAuthenticated()).Returns(true);
             _loggedUserManagerMock.Setup(l => l.GetLoggedUserId()).Returns(1);
+
             _userRepositoryMock
                 .Setup(r => r.ReadByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new User(1, "Alice", "alice@example.com", "hash", DateTimeOffset.UtcNow, new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), notes: []));
+
+            _userQueryMock
+                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new UserViewModel(1, "Alice Updated", "alice@example.com", DateTimeOffset.UtcNow, null));
 
             var model = new UserUpdateInputModel(1, "Alice updated", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 
