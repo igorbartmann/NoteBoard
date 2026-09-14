@@ -1,9 +1,17 @@
-using System;
+using Microsoft.EntityFrameworkCore;
+using NoteBoard.Data.Persistence;
 
 namespace NoteBoard.Tests.Common
 {
-    public class SetupTest
+    public static class SetupTest
     {
-                
+        public static NoteBoardDbContext CreateInMemoryContext()
+        {
+            var options = new DbContextOptionsBuilder<NoteBoardDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            return new NoteBoardDbContext(options);
+        }
     }
 }
