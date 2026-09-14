@@ -1,41 +1,107 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using NoteBoard.Api.Middlewares;
+using NoteBoard.Application.Common.Messages;
+using NoteBoard.Application.DependencyInjection;
+using NoteBoard.Data.DependencyInjection;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddCors();
+
+builder.Services.AddControllers();
+
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        document.Components.SecuritySchemes.Add(
+            "Bearer", 
+            new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Name = "Bearer",
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                Description = "Enter your JWT token to log in."
+            });
+            
+        return Task.CompletedTask;
+    });
+});
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var issuer = builder.Configuration["Authentication:Issuer"];
+        var audience = builder.Configuration["Authentication:Audience"];
+        var secretKey = builder.Configuration["Authentication:SigningKey"];
+
+        if (string.IsNullOrEmpty(issuer) 
+            || string.IsNullOrEmpty(audience)
+            || string.IsNullOrEmpty(secretKey) )
+        {
+            throw new InvalidOperationException(ApplicationMessages.AuthConfigurationError);
+        }
+
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Authentication:Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Authentication:Audience"],
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SigningKey"]!)),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+builder.Services.AddDataDependencies(builder.Configuration);
+builder.Services.AddApplicationDependencies();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("Note Board API")
+            .WithTheme(ScalarTheme.DeepSpace)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    });
+}
+else
+{
+    app.UseExceptionMiddleware();
 }
 
-app.UseHttpsRedirection();
+app.UseCors(opts => opts
+    .AllowAnyOrigin() //.WithOrigins(app.Configuration["AllowedHosts"] ?? string.Empty)
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+);
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseAuthenticationMiddleware();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapControllers()
+    .RequireAuthorization();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

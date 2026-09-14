@@ -1,6 +1,5 @@
-@NoteBoard.Api_HostAddress = http://localhost:5066
+@NoteBoard.Api_HostAddress = https://localhost:7176
 
-GET {{NoteBoard.Api_HostAddress}}/weatherforecast/
+### First url
+GET {{NoteBoard.Api_HostAddress}}/api/...
 Accept: application/json
-
-###

@@ -1,14 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>8102c42b-e2e5-4c10-9d7e-9ce117e3e764</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
 	<PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+	<PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NoteBoard.Application\NoteBoard.Application.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,11 @@
+using System;
+
+namespace NoteBoard.Application.Models.User
+{
+    public sealed record UserCreateInputModel
+    {
+        public string? Name {get;init;}
+        public string? Email {get;init;}
+        public string? Password {get;init;}
+    }
+}
