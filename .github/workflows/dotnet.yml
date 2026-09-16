@@ -1,6 +1,4 @@
-# Build and Test the Project
-
-name: Build and Test Project
+name: Build and Test Backend Project
 
 on:
   pull_request:
@@ -19,10 +17,10 @@ jobs:
         dotnet-version: 10.0.x
         
     - name: Restore Dependencies
-      run: dotnet restore NoteBoard.sln
+      run: dotnet restore ../../Backend/NoteBoard/NoteBoard.slnx
       
     - name: Build
-      run: dotnet build NoteBoard.sln --no-restore --configuration Release
+      run: dotnet build ../../Backend/NoteBoard/NoteBoard.slnx --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test NoteBoard.sln --no-build --configuration Release --verbosity normal
+      run: dotnet test ../../Backend/NoteBoard/NoteBoard.slnx --no-build --configuration Release --verbosity normal
