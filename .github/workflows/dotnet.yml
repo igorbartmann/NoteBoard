@@ -10,7 +10,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Backend
+        working-directory: Backend/NoteBoard
     
     steps:
     - uses: actions/checkout@v4
