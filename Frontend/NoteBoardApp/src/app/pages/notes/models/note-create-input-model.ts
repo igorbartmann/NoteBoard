@@ -1,4 +1,4 @@
-import { NoteColor } from './NoteColor';
+import { NoteColor } from './note-color';
 
 export interface NoteCreateInputModel {
   title: string;

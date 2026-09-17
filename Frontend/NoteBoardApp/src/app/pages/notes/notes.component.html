@@ -2,17 +2,13 @@
   <div class="brand">
     Note<span class="brand-accent">Board</span>
   </div>
-  <button type="button" class="btn-ghost" (click)="logout()">
-    Sign out
-  </button>
+  <button type="button" class="btn-ghost" (click)="logout()">Sign out</button>
 </header>
 
 <main class="page-main">
   <div class="toolbar">
     <h2 class="section-title">My notes</h2>
-    <button type="button" class="btn-primary" (click)="openCreateForm()">
-      + New note
-    </button>
+    <button type="button" class="btn-primary" (click)="openCreateForm()">+ New note</button>
   </div>
 
   @if (errorMessage()) {
@@ -23,29 +19,19 @@
     <section class="note-form-panel">
       <h3>{{ editingId() === null ? 'New note' : 'Edit note' }}</h3>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" class="note-form">
+      <form class="note-form" [formGroup]="noteForm" (ngSubmit)="submit()">
         <label class="field">
           <span class="field-label">Title</span>
-          <input
-            type="text"
-            formControlName="title"
-            maxlength="50"
-            placeholder="Go to the market"
-          />
-          @if (form.controls.title.touched && form.controls.title.invalid) {
+          <input type="text" formControlName="title" maxlength="50" placeholder="Go to the market"/>
+          @if (noteForm.controls.title.touched && noteForm.controls.title.invalid) {
             <small class="field-error">Title is required (up to 50 characters).</small>
           }
         </label>
 
         <label class="field">
           <span class="field-label">Content</span>
-          <textarea
-            rows="4"
-            formControlName="content"
-            maxlength="350"
-            placeholder="Remember to buy fruits"
-          ></textarea>
-          @if (form.controls.content.touched && form.controls.content.invalid) {
+          <textarea rows="4" formControlName="content" maxlength="350" placeholder="Remember to buy fruits"></textarea>
+          @if (noteForm.controls.content.touched && noteForm.controls.content.invalid) {
             <small class="field-error">Content is required (up to 350 characters).</small>
           }
         </label>
@@ -58,21 +44,17 @@
                 type="button"
                 class="color-swatch"
                 [class]="option.cssClass"
-                [class.selected]="form.controls.color.value === option.value"
-                (click)="form.controls.color.setValue(option.value)"
-                [attr.aria-label]="option.label"
-              ></button>
+                [class.selected]="noteForm.controls.color.value === option.value"
+                (click)="noteForm.controls.color.setValue(option.value)"
+                [attr.aria-label]="option.label">
+              </button>
             }
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn-ghost" (click)="cancelForm()">
-            Cancel
-          </button>
-          <button type="submit" class="btn-primary">
-            {{ editingId() === null ? 'Create' : 'Save' }}
-          </button>
+          <button type="button" class="btn-ghost" (click)="cancelForm()">Cancel</button>
+          <button type="submit" class="btn-primary">{{ editingId() === null ? 'Create' : 'Save' }}</button>
         </div>
       </form>
     </section>
@@ -80,16 +62,14 @@
 
   @if (loading()) {
     <p class="empty">Loading notes...</p>
-  } @else if (notes().length === 0) {
+  } 
+  @else if (notes().length === 0) {
     <p class="empty">No notes yet. Click "+ New note" to add one.</p>
-  } @else {
+  } 
+  @else {
     <ul class="note-grid">
       @for (note of notes(); track note.id) {
-        <li
-          class="note-card"
-          [class]="colorClass(note.color)"
-          [class.completed]="note.isCompleted"
-        >
+        <li class="note-card" [class]="colorClass(note.color)" [class.completed]="note.isCompleted">
           <h4 class="note-title">{{ note.title }}</h4>
           <p class="note-content">{{ note.content }}</p>
           <div class="note-actions">
@@ -99,26 +79,25 @@
               (click)="toggleComplete(note)"
               [disabled]="note.isCompleted"
               [attr.aria-label]="note.isCompleted ? 'Completed' : 'Mark as completed'"
-              title="{{ note.isCompleted ? 'Completed' : 'Mark as completed' }}"
-            >
+              title="{{ note.isCompleted ? 'Completed' : 'Mark as completed' }}">
               ✓
             </button>
+
             <button
               type="button"
               class="icon-btn"
               (click)="openEditForm(note)"
               aria-label="Edit"
-              title="Edit"
-            >
+              title="Edit">
               ✎
             </button>
+
             <button
               type="button"
               class="icon-btn danger"
               (click)="deleteNote(note)"
               aria-label="Delete"
-              title="Delete"
-            >
+              title="Delete">
               🗑
             </button>
           </div>

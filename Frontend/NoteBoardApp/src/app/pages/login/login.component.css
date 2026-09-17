@@ -1,4 +1,4 @@
-.auth-shell {
+.login-shell {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -6,7 +6,7 @@
   padding: 2rem 1rem;
 }
 
-.auth-card {
+.login-card {
   width: 100%;
   max-width: 400px;
   background: var(--color-charcoal);
@@ -16,12 +16,12 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-.auth-header {
+.login-header {
   text-align: center;
   margin-bottom: 1.75rem;
 }
 
-.auth-header h1 {
+.login-header h1 {
   margin: 0;
   font-size: 2rem;
   font-weight: 700;
@@ -38,7 +38,7 @@
   font-size: 0.9rem;
 }
 
-.auth-form {
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -92,7 +92,7 @@
   cursor: not-allowed;
 }
 
-.auth-footer {
+.login-footer {
   margin-top: 1.5rem;
   text-align: center;
   font-size: 0.9rem;

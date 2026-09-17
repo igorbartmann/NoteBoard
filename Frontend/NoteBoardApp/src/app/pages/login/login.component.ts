@@ -4,8 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { AuthService } from '../../services/auth.service';
-import { LoginInputModel } from './models/LoginInputModel';
+import { AuthService } from '../../shared/services/auth.service';
+import { LoginInputModel } from '../../shared/models/login-input-model';
 
 @Component({
   selector: 'noteboard-login',
@@ -15,11 +15,11 @@ import { LoginInputModel } from './models/LoginInputModel';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly auth = inject(AuthService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly form = this.fb.nonNullable.group({
+  protected readonly loginForm = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
@@ -28,21 +28,20 @@ export class LoginComponent {
   protected errorMessage: string | null = null;
 
   protected submit(): void {
-    if (this.form.invalid || this.loading) {
-      this.form.markAllAsTouched();
+    if (this.loginForm.invalid || this.loading) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
-    const input: LoginInputModel = this.form.getRawValue();
+    const input: LoginInputModel = this.loginForm.getRawValue();
     this.loading = true;
     this.errorMessage = null;
 
-    this.auth.login(input).subscribe({
+    this.authService.login(input).subscribe({
       next: () => this.router.navigate(['/notes']),
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.errorMessage =
-          err.error?.message ?? 'Invalid email or password.';
+        this.errorMessage = err.error?.message ?? 'Invalid email or password.';
       }
     });
   }

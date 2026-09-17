@@ -1,27 +1,24 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  AbstractControl,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { UserService } from '../../services/user.service';
-import { UserCreateInputModel } from './models/UserCreateInputModel';
+import { RegisterService } from './register.service';
+import { UserCreateInputModel } from './models/user-create-input-model';
 
-const PASSWORD_PATTERN =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.!@#$&*\-]).{1,20}$/;
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.!@#$&*\-]).{1,20}$/;
 
-function noWhitespaceEdges(control: AbstractControl): ValidationErrors | null {
+function noWhiteSpaceEdges(control: AbstractControl): ValidationErrors | null {
   const value = control.value as string | null;
+
   if (!value) {
     return null;
   }
-  return value.trim().length !== value.length ? { whitespace: true } : null;
+
+  return value.trim().length !== value.length 
+    ? { whitespace: true } 
+    : null;
 }
 
 @Component({
@@ -32,25 +29,14 @@ function noWhitespaceEdges(control: AbstractControl): ValidationErrors | null {
   styleUrl: './register.component.css'
 })
 export class RegisterComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly userService = inject(UserService);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly registerService = inject(RegisterService);
   private readonly router = inject(Router);
 
-  protected readonly form = this.fb.nonNullable.group({
+  protected readonly registerForm = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(50)]],
-    email: [
-      '',
-      [Validators.required, Validators.email, Validators.maxLength(254)]
-    ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(20),
-        Validators.pattern(PASSWORD_PATTERN),
-        noWhitespaceEdges
-      ]
-    ]
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+    password: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(PASSWORD_PATTERN), noWhiteSpaceEdges]]
   });
 
   protected loading = false;
@@ -58,26 +44,25 @@ export class RegisterComponent {
   protected successMessage: string | null = null;
 
   protected submit(): void {
-    if (this.form.invalid || this.loading) {
-      this.form.markAllAsTouched();
+    if (this.registerForm.invalid || this.loading) {
+      this.registerForm.markAllAsTouched();
       return;
     }
 
-    const input: UserCreateInputModel = this.form.getRawValue();
+    const input: UserCreateInputModel = this.registerForm.getRawValue();
     this.loading = true;
     this.errorMessage = null;
     this.successMessage = null;
 
-    this.userService.register(input).subscribe({
+    this.registerService.register(input).subscribe({
       next: () => {
         this.loading = false;
         this.successMessage = 'Account created. Redirecting to sign in...';
-        setTimeout(() => this.router.navigate(['/login']), 1200);
+        setTimeout(() => this.router.navigate(['/login']), 1500);
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.errorMessage =
-          err.error?.message ?? 'Could not create the account.';
+        this.errorMessage = err.error?.message ?? 'Could not create the account.';
       }
     });
   }

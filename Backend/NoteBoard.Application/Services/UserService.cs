@@ -50,9 +50,9 @@ namespace NoteBoard.Application.Services
             _repository.Add(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
+            var viewModel = _mapper.ToViewModel(entity);
             
-            return Result<UserViewModel>.Success(data: viewModel);
+            return Result<UserViewModel>.Success(viewModel);
         }
 
         public override async Task<Result<UserViewModel>> Edit(UserUpdateInputModel model, CancellationToken cancellationToken)
@@ -91,9 +91,9 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
+            var viewModel = _mapper.ToViewModel(entity);
             
-            return Result<UserViewModel>.Success(data: viewModel);
+            return Result<UserViewModel>.Success(viewModel);
         }
 
         public override async Task<Result<UserViewModel>> Delete(int id, CancellationToken cancellationToken)

@@ -2,25 +2,24 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 
-import { environment } from '../../environments/environment';
-import { ApiResponse } from '../shared/models/ApiResponse';
-import { LoginInputModel } from '../pages/login/models/LoginInputModel';
-import { LoginViewModel } from '../pages/login/models/LoginViewModel';
+import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../models/api-response';
+import { LoginInputModel } from '../models/login-input-model'; 
+import { LoginViewModel } from '../models/login-view-model'; 
 
 const ACCESS_TOKEN_KEY = 'noteboard.accessToken';
 const REFRESH_TOKEN_KEY = 'noteboard.refreshToken';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/auth`;
 
   login(input: LoginInputModel): Observable<LoginViewModel> {
-    return this.http
-      .post<ApiResponse<LoginViewModel>>(`${this.baseUrl}/login`, input)
+    return this.httpClient.post<ApiResponse<LoginViewModel>>(`${this.baseUrl}/login`, input)
       .pipe(
         map((response) => response.data as LoginViewModel),
-        tap((tokens) => this.persist(tokens))
+        tap((credentials) => this.persist(credentials))
       );
   }
 
@@ -29,16 +28,15 @@ export class AuthService {
       Authorization: `Bearer ${refreshToken}`
     });
 
-    return this.http
-      .post<ApiResponse<LoginViewModel>>(
-        `${this.baseUrl}/refresh-token`,
-        null,
-        { headers }
-      )
+    return this.httpClient.post<ApiResponse<LoginViewModel>>(`${this.baseUrl}/refresh-token`, null, { headers })
       .pipe(
         map((response) => response.data as LoginViewModel),
-        tap((tokens) => this.persist(tokens))
+        tap((credentials) => this.persist(credentials))
       );
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.accessToken;
   }
 
   logout(): void {
@@ -54,12 +52,8 @@ export class AuthService {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
-  isAuthenticated(): boolean {
-    return !!this.accessToken;
-  }
-
-  private persist(tokens: LoginViewModel): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+  private persist(credentials: LoginViewModel): void {
+    localStorage.setItem(ACCESS_TOKEN_KEY, credentials.accessToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, credentials.refreshToken);
   }
 }

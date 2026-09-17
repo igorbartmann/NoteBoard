@@ -1,5 +1,1 @@
 c:\Dev\NoteBoard\Database\NoteBoardDatabase\bin\Debug\NoteBoardDatabase.dacpac
-c:\Dev\NoteBoard\Database\NoteBoardDatabase\obj\Debug\Model.xml
-c:\Dev\NoteBoard\Database\NoteBoardDatabase\obj\Debug\refactor.xml
-c:\Dev\NoteBoard\Database\NoteBoardDatabase\obj\Debug\postdeploy.sql
-c:\Dev\NoteBoard\Database\NoteBoardDatabase\obj\Debug\predeploy.sql

@@ -45,10 +45,6 @@ namespace NoteBoard.Tests.Services
                 .Setup(q => q.ExistsByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            _userQueryMock
-                .Setup(q => q.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new UserViewModel(1, "Alice", "alice@example.com", DateTimeOffset.UtcNow, null));
-
             var model = new UserCreateInputModel
             {
                 Name = "alice",
@@ -128,10 +124,6 @@ namespace NoteBoard.Tests.Services
             _userRepositoryMock
                 .Setup(r => r.ReadByIdAsync(1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new User(1, "Alice", "alice@example.com", "hash", DateTimeOffset.UtcNow, new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero), notes: []));
-
-            _userQueryMock
-                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new UserViewModel(1, "Alice Updated", "alice@example.com", DateTimeOffset.UtcNow, null));
 
             var model = new UserUpdateInputModel(1, "Alice updated", new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 

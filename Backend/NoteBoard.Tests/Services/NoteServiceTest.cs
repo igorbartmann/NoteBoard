@@ -17,7 +17,6 @@ namespace NoteBoard.Tests.Services
     public class NoteServiceTest
     {
         private readonly Mock<ILoggedUserManager> _loggedUserManagerMock;
-        private readonly Mock<INoteQuery> _noteQueryMock;
         private readonly Mock<INoteRepository> _noteRepositoryMock;
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly NoteService _noteService;
@@ -25,13 +24,11 @@ namespace NoteBoard.Tests.Services
         public NoteServiceTest()
         {
             _loggedUserManagerMock = new Mock<ILoggedUserManager>();
-            _noteQueryMock         = new Mock<INoteQuery>();
             _noteRepositoryMock    = new Mock<INoteRepository>();
             _unitOfWorkMock        = new Mock<IUnitOfWork>();
             
             _noteService = new NoteService(
                 loggedUserManager: _loggedUserManagerMock.Object,
-                query:             _noteQueryMock.Object,
                 normalizer:        new NoteNormalizer(),
                 validator:         new NoteValidator(),
                 mapper:            new NoteMapper(),
@@ -49,10 +46,6 @@ namespace NoteBoard.Tests.Services
         public async Task Create()
         {
             DefineUserAsAuthenticated(userId: 10);
-
-            _noteQueryMock
-                .Setup(q => q.GetByIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new NoteViewModel(1, "Buy Milk", "Market", false, NoteColor.Yellow, DateTimeOffset.UtcNow, 10, null));
 
             var model = new NoteCreateInputModel
             {
@@ -141,10 +134,6 @@ namespace NoteBoard.Tests.Services
                     createdBy: 1,
                     new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero)
                 ));
-
-            _noteQueryMock
-                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new NoteViewModel(1, "New Title", "new content", false, NoteColor.Green, DateTimeOffset.UtcNow, 1, null));
 
             var model = new NoteUpdateInputModel(1, "new title", "new content", NoteColor.Green, new DateTimeOffset(2001, 1, 1, 12, 30, 0, TimeSpan.Zero));
 
@@ -256,10 +245,6 @@ namespace NoteBoard.Tests.Services
                     createdBy: 1, 
                     new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
                 ));
-
-            _noteQueryMock
-                .Setup(q => q.GetByIdAsync(1, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new NoteViewModel(1, "Buy Milk", "Market", true, NoteColor.Yellow, DateTimeOffset.UtcNow, 1, null));
 
             var model = new NoteSetCompleteInputModel(1, new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero));
 

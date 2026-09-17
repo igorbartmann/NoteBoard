@@ -17,12 +17,10 @@ namespace NoteBoard.Application.Services
     public sealed class NoteService : BaseService<Note, NoteCreateInputModel, NoteUpdateInputModel, NoteViewModel>, INoteService
     {
         private readonly ILoggedUserManager _loggedUserManager;
-        private readonly INoteQuery _query;
 
-        public NoteService(ILoggedUserManager loggedUserManager, INoteQuery query, INoteNormalizer normalizer, INoteValidator validator, INoteMapper mapper, INoteRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
+        public NoteService(ILoggedUserManager loggedUserManager, INoteNormalizer normalizer, INoteValidator validator, INoteMapper mapper, INoteRepository repository, IUnitOfWork unitOfWork) : base(normalizer, validator, mapper, repository, unitOfWork)
         {
             _loggedUserManager = loggedUserManager;
-            _query = query;
         }
 
         public override async Task<Result<NoteViewModel>> Create(NoteCreateInputModel model, CancellationToken cancellationToken)
@@ -46,7 +44,7 @@ namespace NoteBoard.Application.Services
             _repository .Add(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
+            var viewModel = _mapper.ToViewModel(entity);
 
             return Result<NoteViewModel>.Success(viewModel);
         }
@@ -82,7 +80,7 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
+            var viewModel = _mapper.ToViewModel(entity);
             
             return Result<NoteViewModel>.Success(viewModel);
         }
@@ -116,7 +114,7 @@ namespace NoteBoard.Application.Services
             _repository.Update(entity);
             await _unitOfWork.CommitAsync(cancellationToken);
 
-            var viewModel = await _query.GetByIdAsync(entity.Id, cancellationToken);
+            var viewModel = _mapper.ToViewModel(entity);
             
             return Result<NoteViewModel>.Success(viewModel);
         }

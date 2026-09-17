@@ -1,56 +1,33 @@
-<section class="auth-shell">
-  <div class="auth-card">
-    <header class="auth-header">
+<section class="register-shell">
+  <div class="register-card">
+    <header class="register-header">
       <h1>Note<span class="brand">Board</span></h1>
       <p class="subtitle">Create your account</p>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="auth-form">
+    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="submit()">
       <label class="field">
         <span class="field-label">Name</span>
-        <input
-          type="text"
-          formControlName="name"
-          placeholder="Name"
-          autocomplete="name"
-          maxlength="50"
-        />
-        @if (form.controls.name.touched && form.controls.name.invalid) {
+        <input type="text" formControlName="name" placeholder="Name" autocomplete="name" maxlength="50"/>
+        @if (registerForm.controls.name.touched && registerForm.controls.name.invalid) {
           <small class="field-error">Name is required (up to 50 characters).</small>
         }
       </label>
 
       <label class="field">
         <span class="field-label">Email</span>
-        <input
-          type="email"
-          formControlName="email"
-          placeholder="user@example.com"
-          autocomplete="email"
-          maxlength="254"
-        />
-        @if (form.controls.email.touched && form.controls.email.invalid) {
+        <input type="email" formControlName="email" placeholder="user@example.com" autocomplete="email" maxlength="254"/>
+        @if (registerForm.controls.email.touched && registerForm.controls.email.invalid) {
           <small class="field-error">A valid email is required.</small>
         }
       </label>
 
       <label class="field">
         <span class="field-label">Password</span>
-        <input
-          type="password"
-          formControlName="password"
-          placeholder="••••••••"
-          autocomplete="new-password"
-          maxlength="20"
-        />
-        <small class="field-hint">
-          Up to 20 characters, must include upper, lower, digit, and one of
-          <code>.!&#64;#$&amp;*-</code>
-        </small>
-        @if (form.controls.password.touched && form.controls.password.invalid) {
-          <small class="field-error">
-            Password does not meet the requirements.
-          </small>
+        <input type="password" formControlName="password" placeholder="••••••••" autocomplete="new-password" maxlength="20" />
+        <small class="field-hint">Up to 20 characters, must include upper, lower, digit, and one of<code>.!&#64;#$&amp;*-</code></small>
+        @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+          <small class="field-error">Password does not meet the requirements.</small>
         }
       </label>
 
@@ -66,9 +43,8 @@
       </button>
     </form>
 
-    <footer class="auth-footer">
-      Already have an account?
-      <a routerLink="/login">Sign in</a>
+    <footer class="register-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
     </footer>
   </div>
 </section>
